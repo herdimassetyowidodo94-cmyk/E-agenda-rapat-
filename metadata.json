@@ -1,0 +1,6 @@
+{
+  "name": "E-Agenda Rapat ASN",
+  "description": "Sistem manajemen jadwal dan dokumentasi rapat kedinasan PNS/ASN dengan tema dinamis warna seragam harian Senin hingga Jumat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Rapat PNS - Tema Seragam Harian</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col transition-colors duration-500" id="appBody">
+
+    <!-- Header / Navbar Dinamis Sesuai Tema Hari -->
+    <header id="appHeader" class="bg-[#8F7A52] text-white shadow-lg transition-all duration-500 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <!-- Logo & Judul -->
+                <div class="flex items-center gap-3">
+                    <div id="headerIconBg" class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl shadow-inner">
+                        <i data-lucide="calendar-check-2" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+                            E-Agenda Rapat ASN
+                        </h1>
+                        <p id="headerSubtitle" class="text-xs sm:text-sm text-white/90 font-medium">
+                            Sistem Manajemen Jadwal & Dokumentasi Rapat Kedinasan
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pemilih Tema Hari Seragam PNS -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-black/15 p-2 rounded-xl backdrop-blur-sm">
+                    <span class="text-xs font-semibold uppercase tracking-wider px-2 text-white/90 flex items-center gap-1.5">
+                        <i data-lucide="shirt" class="w-4 h-4"></i> Tema Seragam:
+                    </span>
+                    <div class="flex flex-wrap gap-1.5" id="dayThemeSelector">
+                        <button onclick="setDayTheme('senin')" data-day="senin" class="theme-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#9E875B] border border-slate-400"></span> Senin
+                        </button>
+                        <button onclick="setDayTheme('selasa')" data-day="selasa" class="theme-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-white hover:bg-white/20">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#8A754E] border border-white/50"></span> Selasa
+                        </button>
+                        <button onclick="setDayTheme('rabu')" data-day="rabu" class="theme-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-white hover:bg-white/20">
+                            <span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-800"></span> Rabu
+                        </button>
+                        <button onclick="setDayTheme('kamis')" data-day="kamis" class="theme-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-white hover:bg-white/20">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#4A3525] border border-amber-300"></span> Kamis
+                        </button>
+                        <button onclick="setDayTheme('jumat')" data-day="jumat" class="theme-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-white hover:bg-white/20">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A] border border-sky-300"></span> Jumat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner Info Seragam Hari Ini -->
+    <div id="uniformBanner" class="bg-[#F4EFE6] border-b border-[#DFD5C2] text-[#5C4D32] transition-colors duration-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+            <div class="flex items-center gap-2 font-medium">
+                <span id="uniformBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#8F7A52] text-white">SENIN</span>
+                <span id="uniformDescription">Pakaian Dinas Harian (PDH) Warna Khaki — Rapi, Berwibawa & Disiplin</span>
+            </div>
+            <div id="liveClock" class="font-mono font-semibold opacity-80"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Kolom Kiri: Form Input Agenda Rapat -->
+            <div class="lg:col-span-5">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden sticky top-24">
+                    <div id="formCardHeader" class="px-6 py-4 bg-[#8F7A52] text-white flex items-center justify-between transition-colors duration-500">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            <h2 class="font-bold text-base sm:text-lg">Tambah Agenda Rapat</h2>
+                        </div>
+                        <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full font-medium">Form Kedinasan</span>
+                    </div>
+
+                    <form id="agendaForm" class="p-6 space-y-4">
+                        <!-- Nama Agenda Rapat -->
+                        <div>
+                            <label for="agendaName" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Nama Agenda Rapat <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="agendaName" required placeholder="Contoh: Rapat Koordinasi Evaluasi Anggaran Triwulan IV"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-600 focus:border-transparent outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Tanggal & Jam -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="agendaDate" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    Tanggal Rapat <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="date" id="agendaDate" required
+                                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-600 focus:border-transparent outline-none transition-all">
+                                </div>
+                                <p id="detectedDayHint" class="text-[11px] text-slate-500 mt-1 font-medium">Hari otomatis terdeteksi</p>
+                            </div>
+
+                            <div>
+                                <label for="agendaTime" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    Jam / Waktu <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="time" id="agendaTime" required
+                                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-600 focus:border-transparent outline-none transition-all">
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">Waktu Indonesia Barat (WIB)</p>
+                            </div>
+                        </div>
+
+                        <!-- Tempat Rapat -->
+                        <div>
+                            <label for="agendaLocation" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Tempat / Ruang Rapat <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="agendaLocation" required placeholder="Contoh: Ruang Rapat Utama Lt. 2 / Zoom Meeting"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-amber-600 focus:border-transparent outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Upload Dokumen Pendukung (Foto, Word, PDF) -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Lampiran Dokumen / Undangan <span class="text-xs font-normal text-slate-500">(Foto, Word, PDF)</span>
+                            </label>
+                            <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition-all cursor-pointer relative group">
+                                <input type="file" id="agendaFile" accept="image/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                
+                                <div id="uploadPlaceholder" class="space-y-1.5 py-2">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 mx-auto flex items-center justify-center text-slate-500 group-hover:scale-110 transition-transform">
+                                        <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                                    </div>
+                                    <p class="text-xs sm:text-sm font-medium text-slate-700">
+                                        Klik atau seret file ke area ini
+                                    </p>
+                                    <p class="text-[11px] text-slate-400">
+                                        Mendukung JPG, PNG, PDF, DOC, DOCX (Maks. 10MB)
+                                    </p>
+                                </div>
+
+                                <!-- Preview File yang dipilih -->
+                                <div id="fileSelectedPreview" class="hidden flex items-center justify-between bg-slate-100 p-2.5 rounded-lg text-left relative z-20">
+                                    <div class="flex items-center gap-2.5 overflow-hidden">
+                                        <div id="selectedFileIcon" class="p-2 rounded-lg bg-white text-slate-700 shrink-0 shadow-sm">
+                                            <i data-lucide="file" class="w-5 h-5"></i>
+                                        </div>
+                                        <div class="truncate">
+                                            <p id="selectedFileName" class="text-xs font-semibold text-slate-800 truncate">dokumen.pdf</p>
+                                            <p id="selectedFileSize" class="text-[11px] text-slate-500">1.2 MB</p>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="clearSelectedFile()" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-white transition-colors" title="Hapus file">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Submit -->
+                        <div class="pt-2">
+                            <button type="submit" id="submitBtn"
+                                class="w-full py-3 px-4 bg-[#8F7A52] hover:opacity-95 active:scale-[0.99] text-white font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
+                                <i data-lucide="save" class="w-5 h-5"></i>
+                                <span>Simpan Agenda Rapat</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Daftar & Filter Agenda Rapat -->
+            <div class="lg:col-span-7 space-y-5">
+                
+                <!-- Bar Filter & Statistik -->
+                <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            Daftar Jadwal Rapat
+                            <span id="totalAgendaCount" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">0</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Warna kartu otomatis menyesuaikan hari pelaksanaan rapat</p>
+                    </div>
+
+                    <!-- Filter Hari -->
+                    <div class="flex items-center gap-2">
+                        <label for="filterDay" class="text-xs font-semibold text-slate-500 shrink-0">Filter Hari:</label>
+                        <select id="filterDay" onchange="renderAgendas()"
+                            class="bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm rounded-xl px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-slate-400">
+                            <option value="all">Semua Hari (Senin - Jumat)</option>
+                            <option value="senin">Senin (Seragam Khaki)</option>
+                            <option value="selasa">Selasa (Seragam Khaki)</option>
+                            <option value="rabu">Rabu (Hitam Putih)</option>
+                            <option value="kamis">Kamis (Batik / Adat)</option>
+                            <option value="jumat">Jumat (Batik / Olahraga)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Legenda Warna Seragam PNS -->
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <div class="bg-[#F4EFE6] border border-[#DFD5C2] p-2.5 rounded-xl flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#8F7A52] shrink-0"></span>
+                        <div class="leading-tight">
+                            <p class="text-[11px] font-bold text-[#5C4D32]">Senin</p>
+                            <p class="text-[10px] text-[#7A6746]">PDH Khaki</p>
+                        </div>
+                    </div>
+                    <div class="bg-[#EFE9DC] border border-[#D8CCB4] p-2.5 rounded-xl flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#7A6642] shrink-0"></span>
+                        <div class="leading-tight">
+                            <p class="text-[11px] font-bold text-[#4D3F28]">Selasa</p>
+                            <p class="text-[10px] text-[#6E5C3C]">PDH Khaki</p>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-slate-300 p-2.5 rounded-xl flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-slate-900 shrink-0"></span>
+                        <div class="leading-tight">
+                            <p class="text-[11px] font-bold text-slate-900">Rabu</p>
+                            <p class="text-[10px] text-slate-600">Hitam Putih</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#6B3E26] shrink-0"></span>
+                        <div class="leading-tight">
+                            <p class="text-[11px] font-bold text-[#4A2918]">Kamis</p>
+                            <p class="text-[10px] text-[#7C4A2D]">Batik / Adat</p>
+                        </div>
+                    </div>
+                    <div class="bg-sky-50 border border-sky-200 p-2.5 rounded-xl flex items-center gap-2 col-span-2 sm:col-span-1">
+                        <span class="w-3.5 h-3.5 rounded-full bg-[#1E3A8A] shrink-0"></span>
+                        <div class="leading-tight">
+                            <p class="text-[11px] font-bold text-[#172554]">Jumat</p>
+                            <p class="text-[10px] text-[#1E40AF]">Batik / Korpri</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Container Daftar Kartu Agenda -->
+                <div id="agendaListContainer" class="space-y-4">
+                    <!-- Kartu Agenda akan dirender lewat JavaScript -->
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Pratinjau Lampiran (Foto / PDF / Word) -->
+    <div id="previewModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    <i data-lucide="paperclip" class="w-5 h-5 text-slate-600 shrink-0"></i>
+                    <h3 id="modalFileName" class="font-bold text-slate-800 truncate text-sm sm:text-base">Lampiran Rapat</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a id="modalDownloadBtn" href="#" download="lampiran" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors">
+                        <i data-lucide="download" class="w-4 h-4"></i> Unduh
+                    </a>
+                    <button onclick="closePreviewModal()" class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-lg transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="modalBodyContent" class="p-6 overflow-y-auto flex-grow flex items-center justify-center bg-slate-100 min-h-[300px]">
+                <!-- Konten Pratinjau -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifikasi Toast -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm font-medium">
+            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+            <span id="toastMessage">Agenda berhasil disimpan!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-5 text-center text-xs text-slate-500">
+        <p>Aplikasi Agenda Rapat PNS / ASN &bull; Standar Warna Pakaian Dinas Harian (Senin - Jumat)</p>
+    </footer>
+
+    <script>
+        // Konfigurasi Tema Seragam PNS Senin - Jumat (Sesuai Permendagri)
+        const UNIFORM_THEMES = {
+            senin: {
+                dayName: 'Senin',
+                uniformTitle: 'PDH Warna Khaki',
+                description: 'Pakaian Dinas Harian (PDH) Warna Khaki — Mengawali Pekan dengan Disiplin',
+                primaryBg: '#8F7A52',       // Khaki Utama
+                bannerBg: '#F4EFE6',        // Khaki Lembut
+                bannerBorder: '#DFD5C2',
+                bannerText: '#5C4D32',
+                cardBg: 'bg-[#FAF7F2]',
+                cardBorder: 'border-[#D6C7AC]',
+                badgeBg: 'bg-[#8F7A52]',
+                badgeText: 'text-white',
+                accentText: 'text-[#6E5C3C]'
+            },
+            selasa: {
+                dayName: 'Selasa',
+                uniformTitle: 'PDH Warna Khaki',
+                description: 'Pakaian Dinas Harian (PDH) Warna Khaki — Pelayanan Publik Optimal',
+                primaryBg: '#7A6642',       // Khaki Tua / Klasik
+                bannerBg: '#EFE9DC',
+                bannerBorder: '#D8CCB4',
+                bannerText: '#4D3F28',
+                cardBg: 'bg-[#F6F2EA]',
+                cardBorder: 'border-[#CBBBA0]',
+                badgeBg: 'bg-[#7A6642]',
+                badgeText: 'text-white',
+                accentText: 'text-[#5C4B2E]'
+            },
+            rabu: {
+                dayName: 'Rabu',
+                uniformTitle: 'PDH Hitam Putih',
+                description: 'Pakaian Dinas Harian (PDH) Kemeja Putih & Celana/Rok Hitam — Bersih & Profesional',
+                primaryBg: '#1E293B',       // Hitam / Slate Gelap
+                bannerBg: '#F1F5F9',        // Putih Keabuan Bersih
+                bannerBorder: '#CBD5E1',
+                bannerText: '#0F172A',
+                cardBg: 'bg-white',
+                cardBorder: 'border-slate-300',
+                badgeBg: 'bg-slate-900',
+                badgeText: 'text-white',
+                accentText: 'text-slate-800'
+            },
+            kamis: {
+                dayName: 'Kamis',
+                uniformTitle: 'Batik / Tenun / Pakaian Adat',
+                description: 'Pakaian Batik Nasional / Tenun / Khas Daerah — Melestarikan Budaya Bangsa',
+                primaryBg: '#6B3E26',       // Cokelat Sogan Batik
+                bannerBg: '#FDF6EC',        // Krem Batik
+                bannerBorder: '#F3D8B6',
+                bannerText: '#4A2918',
+                cardBg: 'bg-[#FFFBF5]',
+                cardBorder: 'border-amber-300',
+                badgeBg: 'bg-[#6B3E26]',
+                badgeText: 'text-amber-50',
+                accentText: 'text-[#6B3E26]'
+            },
+            jumat: {
+                dayName: 'Jumat',
+                uniformTitle: 'Batik / Pakaian Olahraga / Korpri',
+                description: 'Pakaian Batik / Olahraga Pagi / Seragam Korpri — Sehat, Bugar & Berintegritas',
+                primaryBg: '#1E3A8A',       // Biru Korpri / Batik Nusantara
+                bannerBg: '#EFF6FF',        // Biru Muda Segar
+                bannerBorder: '#BFDBFE',
+                bannerText: '#1E3A8A',
+                cardBg: 'bg-[#F5F9FF]',
+                cardBorder: 'border-blue-300',
+                badgeBg: 'bg-[#1E3A8A]',
+                badgeText: 'text-white',
+                accentText: 'text-[#1E3A8A]'
+            }
+        };
+
+        // State Aplikasi
+        let agendas = [];
+        let currentSelectedFile = null;
+        let activeHeaderTheme = 'senin';
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            updateLiveClock();
+            setInterval(updateLiveClock, 1000);
+
+            // Set tanggal default ke hari ini
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const dateInput = document.getElementById('agendaDate');
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+            updateDetectedDayHint(dateInput.value);
+
+            // Deteksi hari saat ini untuk tema awal
+            const dayKey = getDayKeyFromDate(dateInput.value);
+            setDayTheme(dayKey);
+
+            // Muat data contoh jika belum ada data tersimpan
+            loadInitialAgendas();
+            renderAgendas();
+
+            // Event Listener Perubahan Tanggal
+            dateInput.addEventListener('change', (e) => {
+                updateDetectedDayHint(e.target.value);
+                const detectedKey = getDayKeyFromDate(e.target.value);
+                setDayTheme(detectedKey);
+            });
+
+            // Event Listener Upload File
+            document.getElementById('agendaFile').addEventListener('change', handleFileSelect);
+
+            // Event Listener Submit Form
+            document.getElementById('agendaForm').addEventListener('submit', handleFormSubmit);
+        });
+
+        // Jam Digital Real-time
+        function updateLiveClock() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('liveClock').textContent = now.toLocaleDateString('id-ID', options) + ' WIB';
+        }
+
+        // Mendapatkan key hari (senin - jumat) dari string tanggal YYYY-MM-DD
+        function getDayKeyFromDate(dateString) {
+            if (!dateString) return 'senin';
+            const dateObj = new Date(dateString + 'T00:00:00');
+            const dayIndex = dateObj.getDay(); // 0 = Minggu, 1 = Senin, ..., 5 = Jumat, 6 = Sabtu
+            const map = {
+                1: 'senin',
+                2: 'selasa',
+                3: 'rabu',
+                4: 'kamis',
+                5: 'jumat'
+            };
+            return map[dayIndex] || 'senin'; // Default ke Senin jika Sabtu/Minggu
+        }
+
+        // Update teks petunjuk hari di bawah input tanggal
+        function updateDetectedDayHint(dateString) {
+            if (!dateString) return;
+            const dateObj = new Date(dateString + 'T00:00:00');
+            const dayIndex = dateObj.getDay();
+            const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const dayKey = getDayKeyFromDate(dateString);
+            const theme = UNIFORM_THEMES[dayKey];
+            const hintEl = document.getElementById('detectedDayHint');
+
+            if (dayIndex === 0 || dayIndex === 6) {
+                hintEl.innerHTML = `Hari <strong class="text-amber-700">${dayNames[dayIndex]}</strong> (Akhir Pekan — Menggunakan Template Senin Khaki)`;
+            } else {
+                hintEl.innerHTML = `Hari <strong class="text-slate-800">${dayNames[dayIndex]}</strong> &bull; Seragam: <strong>${theme.uniformTitle}</strong>`;
+            }
+        }
+
+        // Mengubah Tema Tampilan Utama sesuai Hari Seragam PNS
+        function setDayTheme(dayKey) {
+            activeHeaderTheme = dayKey;
+            const theme = UNIFORM_THEMES[dayKey];
+
+            // Update Header & Form Header & Tombol Submit
+            document.getElementById('appHeader').style.backgroundColor = theme.primaryBg;
+            document.getElementById('formCardHeader').style.backgroundColor = theme.primaryBg;
+            document.getElementById('submitBtn').style.backgroundColor = theme.primaryBg;
+
+            // Update Banner Seragam
+            const banner = document.getElementById('uniformBanner');
+            banner.style.backgroundColor = theme.bannerBg;
+            banner.style.borderColor = theme.bannerBorder;
+            banner.style.color = theme.bannerText;
+
+            const badge = document.getElementById('uniformBadge');
+            badge.style.backgroundColor = theme.primaryBg;
+            badge.textContent = theme.dayName.toUpperCase();
+
+            document.getElementById('uniformDescription').textContent = theme.description;
+
+            // Update Tombol Aktif di Navbar
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                if (btn.dataset.day === dayKey) {
+                    btn.className = 'theme-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 bg-white text-slate-900 shadow-sm scale-105';
+                } else {
+                    btn.className = 'theme-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-white hover:bg-white/20';
+                }
+            });
+        }
+
+        // Menangani Pemilihan File Lampiran (Foto, Word, PDF)
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validasi ukuran (maks 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('Ukuran file terlalu besar! Maksimal 10MB.');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let fileCategory = 'document';
+                if (file.type.startsWith('image/')) {
+                    fileCategory = 'image';
+                } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+                    fileCategory = 'pdf';
+                } else if (file.name.toLowerCase().endsWith('.doc') || file.name.toLowerCase().endsWith('.docx')) {
+                    fileCategory = 'word';
+                }
+
+                currentSelectedFile = {
+                    name: file.name,
+                    size: formatBytes(file.size),
+                    type: file.type,
+                    category: fileCategory,
+                    dataUrl: e.target.result
+                };
+
+                // Tampilkan preview mini di form
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+                document.getElementById('fileSelectedPreview').classList.remove('hidden');
+                document.getElementById('selectedFileName').textContent = file.name;
+                document.getElementById('selectedFileSize').textContent = `${currentSelectedFile.size} • ${fileCategory.toUpperCase()}`;
+
+                // Update ikon berdasarkan tipe file
+                const iconContainer = document.getElementById('selectedFileIcon');
+                if (fileCategory === 'image') {
+                    iconContainer.innerHTML = '<i data-lucide="image" class="w-5 h-5 text-emerald-600"></i>';
+                } else if (fileCategory === 'pdf') {
+                    iconContainer.innerHTML = '<i data-lucide="file-text" class="w-5 h-5 text-red-600"></i>';
+                } else if (fileCategory === 'word') {
+                    iconContainer.innerHTML = '<i data-lucide="file-type-2" class="w-5 h-5 text-blue-600"></i>';
+                } else {
+                    iconContainer.innerHTML = '<i data-lucide="file" class="w-5 h-5 text-slate-600"></i>';
+                }
+                lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Hapus file yang dipilih di form
+        function clearSelectedFile() {
+            currentSelectedFile = null;
+            document.getElementById('agendaFile').value = '';
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+            document.getElementById('fileSelectedPreview').classList.add('hidden');
+        }
+
+        // Format ukuran byte
+        function formatBytes(bytes, decimals = 1) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+        }
+
+        // Simpan Agenda Rapat Baru
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('agendaName').value.trim();
+            const date = document.getElementById('agendaDate').value;
+            const time = document.getElementById('agendaTime').value;
+            const location = document.getElementById('agendaLocation').value.trim();
+
+            if (!name || !date || !time || !location) return;
+
+            const dayKey = getDayKeyFromDate(date);
+
+            const newAgenda = {
+                id: 'agenda-' + Date.now(),
+                name,
+                date,
+                time,
+                location,
+                dayKey,
+                file: currentSelectedFile
+            };
+
+            agendas.unshift(newAgenda);
+            saveAgendasToStorage();
+            renderAgendas();
+
+            // Reset Form (kecuali tanggal tetap agar mudah input beruntun)
+            document.getElementById('agendaName').value = '';
+            document.getElementById('agendaTime').value = '';
+            document.getElementById('agendaLocation').value = '';
+            clearSelectedFile();
+
+            showToast('Agenda rapat kedinasan berhasil ditambahkan!');
+        }
+
+        // Hapus Agenda
+        function deleteAgenda(id) {
+            agendas = agendas.filter(item => item.id !== id);
+            saveAgendasToStorage();
+            renderAgendas();
+            showToast('Agenda rapat telah dihapus.');
+        }
+
+        // Simpan ke LocalStorage (dengan penanganan kuota jika file besar)
+        function saveAgendasToStorage() {
+            try {
+                localStorage.setItem('pns_agenda_rapat_v1', JSON.stringify(agendas));
+            } catch (err) {
+                console.warn('Penyimpanan lokal penuh untuk file lampiran besar, data tetap tersimpan di sesi aktif.');
+            }
+        }
+
+        // Muat data awal / contoh agenda Senin - Jumat
+        function loadInitialAgendas() {
+            const saved = localStorage.getItem('pns_agenda_rapat_v1');
+            if (saved) {
+                try {
+                    agendas = JSON.parse(saved);
+                    if (agendas.length > 0) return;
+                } catch (e) {}
+            }
+
+            // Buat contoh jadwal Senin - Jumat minggu ini
+            const getDateForWeekday = (targetDay) => {
+                const curr = new Date();
+                const first = curr.getDate() - curr.getDay() + targetDay;
+                const d = new Date(curr.setDate(first));
+                return d.toISOString().split('T')[0];
+            };
+
+            agendas = [
+                {
+                    id: 'sample-1',
+                    name: 'Apel Pagi & Rapat Koordinasi Pimpinan (Rapim) Mingguan',
+                    date: getDateForWeekday(1), // Senin
+                    time: '08:30',
+                    location: 'Aula Utama Gedung Sekretariat Lt. 3',
+                    dayKey: 'senin',
+                    file: {
+                        name: 'Undangan_Rapim_Senin.pdf',
+                        size: '420 KB',
+                        category: 'pdf',
+                        isSample: true
+                    }
+                },
+                {
+                    id: 'sample-2',
+                    name: 'Pembahasan Sinkronisasi Program Kerja & Anggaran (RKAKL)',
+                    date: getDateForWeekday(3), // Rabu
+                    time: '10:00',
+                    location: 'Ruang Rapat Bappeda Lt. 2',
+                    dayKey: 'rabu',
+                    file: {
+                        name: 'Draft_Paparan_Anggaran.docx',
+                        size: '1.4 MB',
+                        category: 'word',
+                        isSample: true
+                    }
+                },
+                {
+                    id: 'sample-3',
+                    name: 'Evaluasi Pelayanan Publik & Inovasi Daerah',
+                    date: getDateForWeekday(4), // Kamis
+                    time: '13:30',
+                    location: 'Command Center / Ruang Rapat Garuda',
+                    dayKey: 'kamis',
+                    file: null
+                }
+            ];
+        }
+
+        // Render Daftar Agenda Rapat
+        function renderAgendas() {
+            const container = document.getElementById('agendaListContainer');
+            const filterValue = document.getElementById('filterDay').value;
+
+            const filtered = filterValue === 'all'
+                ? agendas
+                : agendas.filter(item => item.dayKey === filterValue);
+
+            document.getElementById('totalAgendaCount').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center">
+                        <div class="w-14 h-14 rounded-full bg-slate-100 mx-auto flex items-center justify-center text-slate-400 mb-3">
+                            <i data-lucide="calendar-x" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-700">Belum Ada Agenda Rapat</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+                            Silakan tambahkan jadwal rapat baru melalui formulir di samping atau ubah filter hari.
+                        </p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const theme = UNIFORM_THEMES[item.dayKey] || UNIFORM_THEMES.senin;
+                const formattedDate = formatIndonesianDate(item.date);
+
+                // Badge Lampiran jika ada
+                let attachmentHtml = '';
+                if (item.file) {
+                    let iconName = 'file';
+                    let badgeStyle = 'bg-slate-100 text-slate-700 border-slate-200';
+                    if (item.file.category === 'image') {
+                        iconName = 'image';
+                        badgeStyle = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                    } else if (item.file.category === 'pdf') {
+                        iconName = 'file-text';
+                        badgeStyle = 'bg-red-50 text-red-700 border-red-200';
+                    } else if (item.file.category === 'word') {
+                        iconName = 'file-type-2';
+                        badgeStyle = 'bg-blue-50 text-blue-700 border-blue-200';
+                    }
+
+                    attachmentHtml = `
+                        <div class="mt-3 pt-3 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 text-xs font-medium px-2.5 py-1.5 rounded-lg border ${badgeStyle}">
+                                <i data-lucide="${iconName}" class="w-4 h-4 shrink-0"></i>
+                                <span class="truncate max-w-[180px] sm:max-w-[240px]">${escapeHtml(item.file.name)}</span>
+                                <span class="opacity-70 text-[10px]">(${item.file.size})</span>
+                            </div>
+                            <button onclick="openPreviewModal('${item.id}')" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 shadow-sm transition-all">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i> Lihat Dokumen
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="${theme.cardBg} border-2 ${theme.cardBorder} rounded-2xl p-5 shadow-sm hover:shadow-md transition-all relative group">
+                        <!-- Header Kartu: Hari, Seragam & Tombol Hapus -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="${theme.badgeBg} ${theme.badgeText} text-xs font-bold px-3 py-1 rounded-full tracking-wide uppercase shadow-sm">
+                                    ${theme.dayName}
+                                </span>
+                                <span class="text-xs font-semibold ${theme.accentText} bg-white/80 px-2.5 py-1 rounded-full border border-black/10 flex items-center gap-1">
+                                    <i data-lucide="shirt" class="w-3.5 h-3.5"></i> ${theme.uniformTitle}
+                                </span>
+                            </div>
+
+                            <button onclick="deleteAgenda('${item.id}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-white rounded-lg transition-colors" title="Hapus Agenda">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Nama Agenda Rapat -->
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-snug mb-3">
+                            ${escapeHtml(item.name)}
+                        </h3>
+
+                        <!-- Detail Waktu, Tanggal & Tempat -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs sm:text-sm text-slate-700 bg-white/75 p-3 rounded-xl border border-black/5">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="calendar" class="w-4 h-4 ${theme.accentText} shrink-0"></i>
+                                <span class="font-medium truncate">${formattedDate}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="clock" class="w-4 h-4 ${theme.accentText} shrink-0"></i>
+                                <span class="font-semibold">${escapeHtml(item.time)} WIB</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:col-span-1">
+                                <i data-lucide="map-pin" class="w-4 h-4 ${theme.accentText} shrink-0"></i>
+                                <span class="font-medium truncate" title="${escapeHtml(item.location)}">${escapeHtml(item.location)}</span>
+                            </div>
+                        </div>
+
+                        <!-- Lampiran File -->
+                        ${attachmentHtml}
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // Format Tanggal Indonesia
+        function formatIndonesianDate(dateStr) {
+            if (!dateStr) return '-';
+            const dateObj = new Date(dateStr + 'T00:00:00');
+            return dateObj.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        // Buka Modal Pratinjau File
+        function openPreviewModal(agendaId) {
+            const agenda = agendas.find(a => a.id === agendaId);
+            if (!agenda || !agenda.file) return;
+
+            const modal = document.getElementById('previewModal');
+            const titleEl = document.getElementById('modalFileName');
+            const bodyEl = document.getElementById('modalBodyContent');
+            const downloadBtn = document.getElementById('modalDownloadBtn');
+
+            titleEl.textContent = agenda.file.name;
+
+            if (agenda.file.isSample) {
+                // Tampilan simulasi untuk data contoh bawaan
+                downloadBtn.classList.add('hidden');
+                bodyEl.innerHTML = `
+                    <div class="text-center max-w-md space-y-3 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-700 mx-auto flex items-center justify-center">
+                            <i data-lucide="file-check" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800">${escapeHtml(agenda.file.name)}</h4>
+                        <p class="text-xs text-slate-500">
+                            Ini adalah lampiran contoh bawaan aplikasi. Unggah file Foto, Word (.doc/.docx), atau PDF Anda sendiri pada formulir untuk melihat pratinjau langsung dan mengunduhnya.
+                        </p>
+                    </div>
+                `;
+            } else {
+                downloadBtn.classList.remove('hidden');
+                downloadBtn.href = agenda.file.dataUrl;
+                downloadBtn.download = agenda.file.name;
+
+                if (agenda.file.category === 'image') {
+                    bodyEl.innerHTML = `<img src="${agenda.file.dataUrl}" alt="${escapeHtml(agenda.file.name)}" class="max-h-[65vh] w-auto rounded-lg shadow-md object-contain">`;
+                } else if (agenda.file.category === 'pdf') {
+                    bodyEl.innerHTML = `<iframe src="${agenda.file.dataUrl}" class="w-full h-[65vh] rounded-lg border border-slate-300 bg-white"></iframe>`;
+                } else {
+                    // Dokumen Word (.doc / .docx)
+                    bodyEl.innerHTML = `
+                        <div class="text-center max-w-md space-y-3 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center">
+                                <i data-lucide="file-type-2" class="w-8 h-8"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-base">${escapeHtml(agenda.file.name)}</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                Dokumen Microsoft Word (${agenda.file.size}) siap diunduh. Silakan klik tombol <strong>Unduh</strong> di pojok kanan atas untuk membuka dokumen di aplikasi Word Anda.
+                            </p>
+                        </div>
+                    `;
+                }
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closePreviewModal() {
+            const modal = document.getElementById('previewModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Notifikasi Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Sanitasi HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
